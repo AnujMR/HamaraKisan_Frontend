@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hamarakisan_front/colors.dart';
 import 'package:hamarakisan_front/navigators.dart';
 import 'package:hamarakisan_front/providers/authProvider.dart';
 import 'package:hamarakisan_front/screens/homeScreen.dart';
@@ -40,14 +41,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: logoYellow,
       body: Container(
-        color: Colors.white,
         child: Center(
-          child: Text("Hamara Kisan", style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.black),),
-          // Image.asset(
-          //   "assets/images/splashLogo.png",
-          //   width: MediaQuery.of(context).size.width * 0.6,
-          // ),
+          child: Image.asset("assets/images/hamara_kisan_logo.gif", width: 300, height: 300,),
         ),
       ),
     );

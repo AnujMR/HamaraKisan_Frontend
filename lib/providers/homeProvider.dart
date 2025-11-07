@@ -8,6 +8,7 @@ class HomeProvider with ChangeNotifier {
   List<Map<String, dynamic>> tableData = [];
   Map<String, Map<String, dynamic>> priceTrend = {};
   Map<String, dynamic> topDistricts = {};
+  Map<String, Map<String, dynamic>> pinnedMandiComparison = {};
   int selectedPage = 1;
 
   void setSelectedPage(int page) {
@@ -15,12 +16,12 @@ class HomeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-Future<void> getTableData(Map<String, dynamic> reqBody) async {
+Future<void> getTableData(Map<String, dynamic> reqBody, String idToken) async {
     try {
       final response = await http.post(
         Uri.parse(getTableDataEndpoint),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(reqBody),
+        body: jsonEncode({...reqBody, "token": idToken}),
       );
 
       if (response.statusCode == 200) {
@@ -36,12 +37,14 @@ Future<void> getTableData(Map<String, dynamic> reqBody) async {
     }
   }
 
-Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid) async {
+Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid,
+    String idToken,
+  ) async {
     try {
       final response = await http.post(
         Uri.parse("$getHomePageGraphsEndpoint/$uid"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(reqBody),
+        body: jsonEncode({...reqBody, "token": idToken}),
       );
 
       if (response.statusCode == 200) {
@@ -55,6 +58,12 @@ Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid) async {
         }
         if (list["topDistricts"] != null) {
           topDistricts = Map<String, dynamic>.from(list["topDistricts"]);
+        }
+        if (list["pinnedMandiComparison"] != null) {
+          // print("The data we received : " + list["pinnedMandiComparison"]);
+          pinnedMandiComparison = Map<String, Map<String, dynamic>>.from(list["pinnedMandiComparison"]);
+          // print("The data converted : ");
+          // print(pinnedMandiComparison);
         }
 
         notifyListeners();

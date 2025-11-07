@@ -1,3 +1,5 @@
+import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
+
 class UserModel {
   String id;
   String firstName;
@@ -6,9 +8,11 @@ class UserModel {
   String email;
   String? state;
   String? photoUrl;
-  List? fcmToken;
+  String idToken;
   String? district;
   bool isRegistered;
+  List<PinnedMandi> pinnedMandis;
+  List<String> interestedCommodities;
 
   UserModel({
     required this.id,
@@ -16,12 +20,18 @@ class UserModel {
     required this.lastName,
     required this.phone,
     required this.email,
+    required this.pinnedMandis,
+    required this.interestedCommodities,
     this.state = '',
     this.photoUrl,
     this.district,
-    this.fcmToken,
+    this.idToken = '',
     this.isRegistered = false,
   });
+
+  setPinnedMandis(List<PinnedMandi> newMandis){
+    pinnedMandis = newMandis;
+  }
 
   static UserModel jsonToUser(Map userData) => UserModel(
     id: userData['id'],
@@ -32,7 +42,12 @@ class UserModel {
     state: userData['state'],
     photoUrl: userData['photoUrl'],
     district: userData['district'],
-    fcmToken: userData['fcmToken'],
+    idToken: userData['idToken'],
+    interestedCommodities: List<String>.from(userData['interestedCom'] ?? []),
     isRegistered: userData['isRegistered'] ?? false,
+    pinnedMandis: (userData["pinnedMandis"] as List)
+        .map((m) => PinnedMandi.fromJson(m))
+        .toList(),
+
   );
 }

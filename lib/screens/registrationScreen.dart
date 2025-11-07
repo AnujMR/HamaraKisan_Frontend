@@ -220,7 +220,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       final res = await Provider.of<AuthProvider>(
                         context,
                         listen: false,
-                      ).updateUser(userData: updateData);
+                      ).updateUser(userData: updateData, idToken: Provider.of<AuthProvider>(context, listen: false).user.idToken);
                       if (res != null) {
                         showSnackbar("Registered successfully", Colors.green);
                         pushAndRemoveUntil(context, HomeScreen());

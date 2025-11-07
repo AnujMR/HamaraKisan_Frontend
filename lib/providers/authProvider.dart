@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
 import 'package:hamarakisan_front/models/userModel.dart';
 import 'package:localstorage/localstorage.dart';
 
@@ -10,11 +11,17 @@ class AuthProvider with ChangeNotifier {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
+  updatePinnedMandis(List<PinnedMandi> newMandis){
+    user.setPinnedMandis(newMandis);
+    notifyListeners();
+  }
+
   Future<bool> checkIfLoggedIn() async {
     final User? currentUser = _auth.currentUser;
     UserModel? existingUser;
     if (currentUser != null) {
-      existingUser = await getUser(userid: currentUser.uid);
+      String? idToken = await  currentUser.getIdToken();
+      existingUser = await getUser(userid: currentUser.uid, idToken: idToken!);
       if (existingUser != null) {
         user = existingUser;
         return true;
@@ -35,8 +42,9 @@ class AuthProvider with ChangeNotifier {
       // );
 
       final userData = await signInWithGoogleWeb();
+      String? idToken = await userData.user!.getIdToken();
 
-      final existingUser = await getUser(userid: userData.user!.uid);
+      final existingUser = await getUser(userid: userData.user!.uid, idToken: idToken!);
 
       if (existingUser == null) {
         Map<String, dynamic> dataMap = {
@@ -52,11 +60,12 @@ class AuthProvider with ChangeNotifier {
           "phone": "",
           "interestedCom":[],
           "pinnedMandis":[],
-          "isRegistered": false,
+          "isRegistered": false
         };
         final newUser = await createUser(
           userData: dataMap,
           uid: userData.user!.uid,
+          idToken: idToken!
         );
         if (newUser != null) user = newUser;
         return newUser;
@@ -94,7 +103,7 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
 
-      UserModel? newUser = await getUser(userid: userData.user!.uid);
+      UserModel? newUser = await getUser(userid: userData.user!.uid, idToken: "");
       if (newUser != null) user = newUser;
       return newUser;
     } catch (e) {
@@ -145,10 +154,10 @@ class AuthProvider with ChangeNotifier {
     return false;
   }
 
-  Future<UserModel?> getUser({required String userid}) async {
+  Future<UserModel?> getUser({required String userid, required String idToken}) async {
     try {
       final userData = await firestore.collection("users").doc(userid).get();
-      user = UserModel.jsonToUser(userData.data() as Map);
+      user = UserModel.jsonToUser({...userData.data() as Map, "idToken": idToken});
       return user;
     } catch (e) {
       print(e);
@@ -159,10 +168,11 @@ class AuthProvider with ChangeNotifier {
   Future<UserModel?> createUser({
     required Map<String, dynamic> userData,
     required String uid,
+    required String idToken
   }) async {
     try {
       await firestore.collection("users").doc(uid).set(userData);
-      UserModel? newUser = await getUser(userid: uid);
+      UserModel? newUser = await getUser(userid: uid, idToken: idToken);
       return newUser;
     } catch (e) {
       print(e);
@@ -172,10 +182,11 @@ class AuthProvider with ChangeNotifier {
 
   Future<UserModel?> updateUser({
     required Map<String, dynamic> userData,
+    required String idToken
   }) async {
     try {
       await firestore.collection("users").doc(user.id).update(userData);
-      UserModel? newUser = await getUser(userid: user.id);
+      UserModel? newUser = await getUser(userid: user.id, idToken: idToken);
       if (newUser != null) {
         user = newUser;
       }

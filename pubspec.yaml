@@ -40,7 +40,7 @@ dependencies:
   firebase_auth: ^6.1.0
   localstorage: ^6.0.0
   cloud_firestore: ^6.0.2
-  image_picker: ^1.2.0
+  file_picker: ^10.3.3
   dio: ^5.9.0
   google_sign_in: ^7.2.0
   flutter_svg: ^2.2.1
@@ -50,6 +50,7 @@ dependencies:
   dropdown_search: ^6.0.2
   intl: ^0.20.2
   syncfusion_flutter_charts: ^31.2.3
+  flutter_markdown: ^0.6.20
 
 dev_dependencies:
   flutter_test:

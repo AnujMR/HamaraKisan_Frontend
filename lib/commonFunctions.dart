@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 // import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -9,8 +9,6 @@ import 'dart:io';
 // import 'package:url_launcher/url_launcher.dart';
 
 import 'main.dart';
-
-ImagePicker _picker = new ImagePicker();
 
 getTimePeriod(double time) {
   if (time > 12) {
@@ -124,45 +122,14 @@ showSnackbar(String msg, Color color, [int duration = 2]) {
   ));
 }
 
-pickImage(
-  ImageSource source,
-) async {
-  ImagePicker _picker = new ImagePicker();
-  final image = await _picker.pickImage(source: source);
+Future<FilePickerResult?> pickImage() async {
+  final image = await FilePicker.platform.pickFiles(type: FileType.image);
   if (image != null) {
     return image;
   }
+  return null;
 }
 
-pickVideo(
-  ImageSource source,
-) async {
-  ImagePicker _picker = new ImagePicker();
-  final video = await _picker.pickVideo(source: source);
-  if (video != null) {
-    return video;
-  }
-}
-
-Future<String> imgFromCamera() async {
-  final image = await _picker.pickImage(source: ImageSource.camera);
-
-  if (image != null) {
-    return image.path;
-  } else {
-    return '';
-  }
-}
-
-Future<String> imgFromGallery() async {
-  final image = await _picker.pickImage(source: ImageSource.gallery);
-
-  if (image != null) {
-    return image.path;
-  } else {
-    return '';
-  }
-}
 
 String getInitials(String inputString) {
   String toReturn = '';

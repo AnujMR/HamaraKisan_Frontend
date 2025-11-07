@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hamarakisan_front/providers/authProvider.dart';
 import 'package:hamarakisan_front/providers/homeProvider.dart';
+import 'package:hamarakisan_front/providers/pinnedMandiProvider.dart';
+import 'package:hamarakisan_front/providers/plantDisseasePredProvider.dart';
 import 'package:hamarakisan_front/screens/splashScreen.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +36,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => PinnedMandiProvider()),
+        ChangeNotifierProvider(create: (_) => PlantDiseasePredProvider()),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
