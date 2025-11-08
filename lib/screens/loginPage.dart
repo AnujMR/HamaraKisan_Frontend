@@ -45,9 +45,10 @@ class _LoginSignupScreenState extends State<LoginSignupScreen> {
             child: Container(
               color: Color(0xFFcaaa01),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Image.asset("assets/images/login_logo.png", width: dH * 0.2),
+                SizedBox(height: dH * 0.1),
+                Image.asset("assets/images/login_logo.png", width: dH * 0.4),
                 SizedBox(
                   width: dW * 0.3,
                   child: FittedBox(
