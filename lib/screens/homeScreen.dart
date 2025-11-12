@@ -879,24 +879,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     if (Provider.of<HomeProvider>(context).selectedPage == 2)
-                    
                       Container(
                         child: PredictionScreen(),
                       ),
                     if (Provider.of<HomeProvider>(context).selectedPage == 3)
                     DashboardScreen()
-                      // Container(
-                      //   child: Text(
-                      //     "Yeh bhi on the way hai, sabar kro...",
-                      //     style: GoogleFonts.poppins(
-                      //       textStyle: TextStyle(
-                      //         fontSize: 16,
-                      //         fontWeight: FontWeight.w500,
-                      //         color: Colors.black,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                   ],
                 ),
               ),

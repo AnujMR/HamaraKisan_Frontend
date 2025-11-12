@@ -141,7 +141,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         ),
         popupProps: PopupProps.menu(
           fit: FlexFit.loose,
-          showSearchBox: false,
+          showSearchBox: true,
           showSelectedItems: true,
           searchFieldProps: TextFieldProps(
             cursorColor: Theme.of(context).primaryColor,

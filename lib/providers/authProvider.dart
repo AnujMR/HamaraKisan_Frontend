@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hamarakisan_front/models/dashboardData.dart';
 import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
 import 'package:hamarakisan_front/models/userModel.dart';
 import 'package:localstorage/localstorage.dart';
 
 class AuthProvider with ChangeNotifier {
   late UserModel user;
+  List<DashboardData> dashboardData = [];
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
 
@@ -24,6 +26,7 @@ class AuthProvider with ChangeNotifier {
       existingUser = await getUser(userid: currentUser.uid, idToken: idToken!);
       if (existingUser != null) {
         user = existingUser;
+        getDashboardData();
         return true;
       }
     }
@@ -67,9 +70,12 @@ class AuthProvider with ChangeNotifier {
           uid: userData.user!.uid,
           idToken: idToken!
         );
-        if (newUser != null) user = newUser;
+        if (newUser != null) {
+          user = newUser;
+          }
         return newUser;
       } else {
+        getDashboardData();
         return existingUser;
       }
     } catch (e) {
@@ -173,6 +179,10 @@ class AuthProvider with ChangeNotifier {
     try {
       await firestore.collection("users").doc(uid).set(userData);
       UserModel? newUser = await getUser(userid: uid, idToken: idToken);
+      final dashboardData = {
+        "data": []
+      };
+      await firestore.collection("dashboard").doc(uid).set(dashboardData);
       return newUser;
     } catch (e) {
       print(e);
@@ -201,6 +211,21 @@ class AuthProvider with ChangeNotifier {
   setItemInLocalStorage({required String key, required String value}) async {
     await initLocalStorage();
     localStorage.setItem(key, value);
+  }
+
+  getDashboardData() async {
+    try {
+      final dashboardData = await firestore.collection("dashboard").doc(user.id).get();
+      final data = dashboardData.data();
+      if (data != null) {
+        List<dynamic> dataList = data['data'];
+        this.dashboardData = dataList.map((e) => DashboardData.fromJson(e)).toList();
+        notifyListeners();
+      } 
+    } catch (e) {
+      print(e);
+      return null;
+    }
   }
 
   
