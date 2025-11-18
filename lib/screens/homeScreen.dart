@@ -545,21 +545,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 selectedItem: selectedState,
                                               ),
                                               SizedBox(width: 10),
-                                              customDropDownTextField(
-                                                onChanged: (val) {
-                                                  setState(() {
-                                                    selectedDistrict = val;
-                                                  });
-                                                },
-                                                items: selectedState == null
-                                                    ? []
-                                                    : [
-                                                        "All Districts",
-                                                        ...stateDistrictMap[selectedState],
-                                                      ],
-                                                hintText: "District",
-                                                selectedItem: selectedDistrict,
-                                              ),
+                                              // customDropDownTextField(
+                                              //   onChanged: (val) {
+                                              //     setState(() {
+                                              //       selectedDistrict = val;
+                                              //     });
+                                              //   },
+                                              //   items: selectedState == null
+                                              //       ? []
+                                              //       : [
+                                              //           "All Districts",
+                                              //           ...stateDistrictMap[selectedState],
+                                              //         ],
+                                              //   hintText: "District",
+                                              //   selectedItem: selectedDistrict,
+                                              // ),
                                               SizedBox(width: 10),
                                               customDropDownTextField(
                                                 onChanged: (val) {
@@ -650,7 +650,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         TableRow(
                                           marketId: "Market ID",
                                           state: "State",
-                                          district: "District",
+                                          // district: "District",
                                           mandiName: "Mandi Name",
                                           commodity: "Commodity",
                                           variety: "Variety",
@@ -692,8 +692,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         marketId:
                                                             data["market_id"] ?? "",
                                                         state: data["state"] ?? "",
-                                                        district:
-                                                            data["district"] ?? "",
+                                                        // district:
+                                                        //     data["district"] ?? "",
                                                         mandiName:
                                                             data["market_name"] ?? "",
                                                         commodity:
@@ -912,7 +912,7 @@ class TableRow extends StatefulWidget {
     super.key,
     required this.marketId,
     required this.state,
-    required this.district,
+    // required this.district,
     required this.mandiName,
     required this.commodity,
     required this.variety,
@@ -930,7 +930,7 @@ class TableRow extends StatefulWidget {
 
   final String marketId;
   final String state;
-  final String district;
+  // final String district;
   final String mandiName;
   final String commodity;
   final String variety;
@@ -979,7 +979,7 @@ class _TableRowState extends State<TableRow> {
       "market_id": widget.marketId,
       "marketName": widget.mandiName,
       "state": widget.state,
-      "district": widget.district,
+      // "district": widget.district,
       "token": user.idToken,
     };
 
@@ -1075,22 +1075,22 @@ class _TableRowState extends State<TableRow> {
                   ),
                 ),
               ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  child: Text(
-                    widget.district,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      textStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: widget.isHeader ? Colors.white : Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              // Expanded(
+              //   child: Container(
+              //     padding: EdgeInsets.symmetric(vertical: 10),
+              //     child: Text(
+              //       widget.district,
+              //       textAlign: TextAlign.center,
+              //       style: GoogleFonts.poppins(
+              //         textStyle: TextStyle(
+              //           fontSize: 12,
+              //           fontWeight: FontWeight.w600,
+              //           color: widget.isHeader ? Colors.white : Colors.black,
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
               Expanded(
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
