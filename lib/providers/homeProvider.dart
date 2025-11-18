@@ -25,7 +25,8 @@ Future<void> getTableData(Map<String, dynamic> reqBody, String idToken) async {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> list = jsonDecode(response.body);
+        final res = jsonDecode(response.body);
+        final List<dynamic> list = res['mandis'];
         // print(list); 
         tableData = List<Map<String, dynamic>>.from(list);
         notifyListeners();

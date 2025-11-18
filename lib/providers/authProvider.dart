@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:hamarakisan_front/apis.dart';
 import 'package:hamarakisan_front/models/dashboardData.dart';
 import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
 import 'package:hamarakisan_front/models/userModel.dart';
+import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -225,6 +229,40 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       print(e);
       return null;
+    }
+  }
+
+  Future<Map> addRecordInDashboard(
+    {required Map<String, dynamic> reqBody,
+    required String idToken,
+    required String uid}
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$addRecordEnpoint/$uid"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...reqBody, "token": idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        dashboardData.add(DashboardData.fromJson({...reqBody, "index": dashboardData.length.toString(), "total": reqBody["price"] * reqBody["quantity"]}));
+        notifyListeners();
+        getDashboardData();
+        notifyListeners();
+        return {"success": true};
+      } else {
+        print('Error: ${response.statusCode} - ${response.body}');
+        return {
+          "success": false,
+          "message": 'Error: ${response.statusCode} - ${response.body}'
+        };
+      }
+    } catch (e) {
+      print("Error fetching dashboard data: $e");
+      return {
+        "success": false,
+        "message": 'Error: $e'
+      };
     }
   }
 

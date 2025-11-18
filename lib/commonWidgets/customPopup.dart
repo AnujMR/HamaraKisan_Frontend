@@ -1,49 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hamarakisan_front/navigators.dart';
 
 
-Future<void> showYesNoDialog(BuildContext context, {required String mandiName, required Function onYes}) async {
+Future<void> customPopUpBox(BuildContext context, {required String title,required Widget child, required Function onYes, String yesBtnText = "Yes", String noBtnText = "No"}) async {
   final result = await showDialog<bool>(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Text('Confirm Action'),
-        content: Row(
-          children: [
-            Text('Are you sure you want to pin ', style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color:Colors.black,
-                ),
-              ),
-            ),
-            Text(mandiName, style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-            Text(' mandi?', style: GoogleFonts.poppins(
-                textStyle: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ],
-        ),
+        title: Text(title),
+        backgroundColor: Colors.white,
+        content: child,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
             },
-            child: Text('No', style: GoogleFonts.poppins(
+            child: Text(noBtnText, style: GoogleFonts.poppins(
                 textStyle: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -56,9 +31,10 @@ Future<void> showYesNoDialog(BuildContext context, {required String mandiName, r
             onPressed: () {
               // Navigator.of(context).pop(true);
               onYes();
+              pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: Text('Yes', style: GoogleFonts.poppins(
+            child: Text(yesBtnText, style: GoogleFonts.poppins(
                 textStyle: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,

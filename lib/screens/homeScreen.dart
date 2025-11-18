@@ -281,10 +281,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     Map<String, dynamic> reqBody = {
       "state": state,
-      "district": dist == null || dist == "All Districts" ? "--Select--" : dist,
-      "commodity_name": comm,
-      "startDate": DateFormat('dd-MMM-yyyy').format(startDate),
-      "endDate": DateFormat('dd-MMM-yyyy').format(endDate),
+      "comm": comm,
+      "date": DateFormat('dd-MMM-yyyy').format(startDate),
     };
     print(DateFormat('dd-MMM-yyyy').format(startDate));
     await Provider.of<HomeProvider>(
@@ -699,7 +697,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         mandiName:
                                                             data["market_name"] ?? "",
                                                         commodity:
-                                                            data["commodity"] ?? "",
+                                                            data["comm"] ?? "",
                                                         variety:
                                                             data["variety"] ?? "",
                                                         grade: data["grade"] ?? "",
@@ -998,14 +996,46 @@ class _TableRowState extends State<TableRow> {
     } else {
       showSnackbar("Error pinning mandi", Colors.red);
     }
-    pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        showYesNoDialog(context, mandiName: widget.mandiName, onYes: pinMandi),
+        customPopUpBox(context, title: 'Confirm Action', child: Row(
+            children: [
+              Text(
+                'Are you sure you want to pin ',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Text(
+                widget.mandiName,
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              Text(
+                ' mandi?',
+                style: GoogleFonts.poppins(
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ],
+          ), onYes: pinMandi),
       },
 
       child: MouseRegion(

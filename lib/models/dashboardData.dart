@@ -24,7 +24,7 @@ class DashboardData{
       price: json['price'],
       quantity: json['quantity'],
       total: json['total'],
-      date: (json['date'] as Timestamp).toDate(),
+      date: DateTime.parse(json['date']),
     );
   }
 }

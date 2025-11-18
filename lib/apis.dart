@@ -7,3 +7,4 @@ String getHomePageGraphsEndpoint = "$baseUrl/homePageGraphs";
 String pinMandiEndpoint = "$baseUrl/pin_mandi";
 String plantDiseasePredEndpoint = "$baseUrl/predict_disease";
 String getRemedyEndpoint = "$baseUrl/getRemedy";
+String addRecordEnpoint = "$baseUrl/addRecord";
