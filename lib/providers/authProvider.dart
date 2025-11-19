@@ -223,7 +223,8 @@ class AuthProvider with ChangeNotifier {
       final data = dashboardData.data();
       if (data != null) {
         List<dynamic> dataList = data['data'];
-        this.dashboardData = dataList.map((e) => DashboardData.fromJson(e)).toList();
+        this.dashboardData = dataList.map((e) => DashboardData.fromJson(e)).toList()..sort((a, b) => b.date.compareTo(a.date));
+        
         notifyListeners();
       } 
     } catch (e) {

@@ -90,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   selectDateField(bool isStartDate) {
     return Container(
-      width: dW * 0.12,
+      width: dW * 0.15,
       child: InkWell(
         splashColor: Colors.white,
         onTap: () {
@@ -117,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 vertical: 15,
                 horizontal: 20,
               ),
-              hintText: isStartDate ? "Start Date" : "End Date",
+              hintText: isStartDate ? "Date" : "End Date",
               fillColor: Colors.white,
               filled: true,
               enabledBorder: OutlineInputBorder(
@@ -184,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
     String? selectedItem,
   }) {
     return SizedBox(
-      width: dW * 0.1,
+      width: dW * 0.15,
       // height: dW * 0.12,
       child: DropdownSearch<String>(
         decoratorProps: DropDownDecoratorProps(
@@ -271,10 +271,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getTableData(
     String state,
-    String? dist,
+    // String? dist,
     String comm,
     DateTime startDate,
-    DateTime endDate,
+    // DateTime endDate,
   ) async {
     setState(() {
       isLoading = true;
@@ -308,10 +308,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   getHomePageGraphs(
     String state,
-    String? dist,
+    // String? dist,
     String comm,
     DateTime startDate,
-    DateTime endDate,
+    // DateTime endDate,
   ) async {
     setState(() {
       isLoadingGraphs = true;
@@ -320,8 +320,8 @@ class _HomeScreenState extends State<HomeScreen> {
       "state": state,
       // "district": dist == null || dist == "All Districts" ? "--Select--" : dist,
       "commodity_name": comm,
-      "startDate": DateFormat('dd-MMM-yyyy').format(startDate),
-      "endDate": DateFormat('dd-MMM-yyyy').format(endDate),
+      "date": DateFormat('dd-MMM-yyyy').format(startDate),
+      // "endDate": DateFormat('dd-MMM-yyyy').format(endDate),
     };
     final res = await Provider.of<HomeProvider>(context, listen: false)
         .getHomePageGraphs(
@@ -383,8 +383,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool areAllFiltersSelected() {
     return selectedState != null &&
         selectedCommodity != null &&
-        selectedStartDate != null &&
-        selectedEndDate != null;
+        selectedStartDate != null;
+        // && selectedEndDate != null;
   }
 
   @override
@@ -544,7 +544,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 hintText: "State",
                                                 selectedItem: selectedState,
                                               ),
-                                              SizedBox(width: 10),
+                                              // SizedBox(width: 10),
                                               // customDropDownTextField(
                                               //   onChanged: (val) {
                                               //     setState(() {
@@ -576,30 +576,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                               SizedBox(width: 10),
                                               selectDateField(true),
                                               SizedBox(width: 10),
-                                              selectDateField(false),
-                                              SizedBox(width: 10),
+                                              // selectDateField(false),
+                                              // SizedBox(width: 10),
                                               ElevatedButton(
                                                 onPressed: () {
                                                   if (!areAllFiltersSelected()) {
                                                     showSnackbar(
-                                                      "Please select State, Commodity, Start Date and End Date",
+                                                      "Please select State, Commodity and Date",
                                                       Colors.red,
                                                     );
                                                     return;
                                                   }
                                                   getTableData(
                                                     selectedState!,
-                                                    selectedDistrict,
+                                                    // selectedDistrict,
                                                     selectedCommodity!,
                                                     selectedStartDate!,
-                                                    selectedEndDate!,
+                                                    // selectedEndDate!,
                                                   );
                                                   getHomePageGraphs(
                                                     selectedState!,
-                                                    selectedDistrict,
+                                                    // selectedDistrict,
                                                     selectedCommodity!,
                                                     selectedStartDate!,
-                                                    selectedEndDate!,
+                                                    // selectedEndDate!,
                                                   );
                                                 },
                                                 style: ElevatedButton.styleFrom(
@@ -720,10 +720,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                         refreshGraphs: (){
                                                           getHomePageGraphs(
                                                             selectedState!,
-                                                            selectedDistrict,
+                                                            // selectedDistrict,
                                                             selectedCommodity!,
                                                             selectedStartDate!,
-                                                            selectedEndDate!,
+                                                            // selectedEndDate!,
                                                           );
                                                         }
                                                       ),
@@ -1159,7 +1159,7 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    widget.minPrice,
+                    "₹ ${widget.minPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
@@ -1175,7 +1175,7 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    widget.maxPrice,
+                    "₹ ${widget.maxPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
@@ -1191,7 +1191,7 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    widget.modalPrice,
+                    "₹ ${widget.modalPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
@@ -1227,12 +1227,40 @@ class _TableRowState extends State<TableRow> {
   }
 }
 
-class PinnedMandiCard extends StatelessWidget {
+class PinnedMandiCard extends StatefulWidget {
   const PinnedMandiCard({
     super.key,
     required this.pinnedMandi,
   });
   final PinnedMandi pinnedMandi;
+
+  @override
+  State<PinnedMandiCard> createState() => _PinnedMandiCardState();
+}
+
+class _PinnedMandiCardState extends State<PinnedMandiCard> {
+  bool isHovered = false;
+  
+  unpinMandi() async {
+    UserModel user = Provider.of<AuthProvider>(context, listen: false).user;
+
+    final reqBody = {"id": widget.pinnedMandi.marketId, "token": user.idToken};
+
+    final res = await Provider.of<PinnedMandiProvider>(
+      context,
+      listen: false,
+    ).unpinMandi(reqBody: reqBody, userId: user.id);
+    if (res["success"]) {
+      showSnackbar("Mandi unpinned successfully", Colors.green);
+      // widget.refreshGraphs!();
+      Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).updatePinnedMandis(res["pinnedMandis"]);
+    } else {
+      showSnackbar("Error unpinning mandi", Colors.red);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1279,7 +1307,7 @@ class PinnedMandiCard extends StatelessWidget {
                           width: 100,
                           child: Text(
                             overflow: TextOverflow.ellipsis,
-                            pinnedMandi.marketName,
+                            widget.pinnedMandi.marketName,
                             style: GoogleFonts.poppins(
                               textStyle: TextStyle(
                                 fontSize: 18,
@@ -1297,26 +1325,26 @@ class PinnedMandiCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              width: 100,
-                              child: Text(
-                                "${pinnedMandi.district}, ",
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                            ),
+                            // Container(
+                            //   width: 100,
+                            //   child: Text(
+                            //     "${pinnedMandi.district}, ",
+                            //     overflow: TextOverflow.ellipsis,
+                            //     style: GoogleFonts.poppins(
+                            //       textStyle: TextStyle(
+                            //         fontSize: 14,
+                            //         fontWeight: FontWeight.w500,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                         SizedBox(width: 20),
                         Row(
                           children: [
                             Text(
-                              pinnedMandi.state,
+                              widget.pinnedMandi.state,
                               style: GoogleFonts.poppins(
                                 textStyle: TextStyle(
                                   fontSize: 14,
@@ -1357,25 +1385,42 @@ class PinnedMandiCard extends StatelessWidget {
               ],
             ),
           ),
-        Container(
-          padding: EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(100),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade300,
-                offset: Offset(-1, 2),
-                spreadRadius: 1,
-                blurRadius: 3
-              )
-            ]
-          ),
-          child: SvgPicture.asset(
-              "assets/svg/pinned_icon.svg",
-              width: 16,
-              color: Colors.grey.shade500,
+        GestureDetector(
+          onTap: unpinMandi,
+          child: MouseRegion(
+            onEnter: (_){
+              setState(() {
+                isHovered = true;
+              });
+            },
+            onExit: (_){
+              setState(() {
+                isHovered = false;
+              });
+            },
+            cursor: SystemMouseCursors.click,
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 200),
+              padding: EdgeInsets.all(isHovered ? 4 : 2),
+              decoration: BoxDecoration(
+                color: isHovered ? Colors.red.shade400 : Colors.white,
+                borderRadius: BorderRadius.circular(100),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    offset: Offset(-1, 2),
+                    spreadRadius: 1,
+                    blurRadius: 3
+                  )
+                ]
+              ),
+              child: SvgPicture.asset(
+                  isHovered ? "assets/svg/unpin_icon.svg" : "assets/svg/pinned_icon.svg",
+                  width: 16,
+                  color: isHovered ? Colors.white : Colors.grey.shade500,
+                ),
             ),
+          ),
         ),
         ],
       ),

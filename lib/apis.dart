@@ -5,6 +5,7 @@ String baseUrl = "http://127.0.0.1:5000";
 String getTableDataEndpoint = "$baseUrl/getTableData";
 String getHomePageGraphsEndpoint = "$baseUrl/homePageGraphs";
 String pinMandiEndpoint = "$baseUrl/pin_mandi";
+String unpinMandiEndpoint = "$baseUrl/unpinMandi";
 String plantDiseasePredEndpoint = "$baseUrl/predict_disease";
 String getRemedyEndpoint = "$baseUrl/getRemedy";
 String addRecordEnpoint = "$baseUrl/addRecord";
