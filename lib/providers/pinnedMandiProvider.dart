@@ -9,12 +9,13 @@ class PinnedMandiProvider with ChangeNotifier {
   Future<Map> pinMandi({
     required Map<String, dynamic> reqBody,
     required String userId,
+    required String idToken,
   }) async {
     try {
       final response = await http.post(
         Uri.parse("$pinMandiEndpoint/$userId"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(reqBody),
+        body: jsonEncode({...reqBody, "token": idToken}),
       );
 
       if (response.statusCode == 200) {
@@ -42,12 +43,13 @@ class PinnedMandiProvider with ChangeNotifier {
   Future<Map> unpinMandi({
     required Map<String, dynamic> reqBody,
     required String userId,
+    required String idToken,
   }) async {
     try {
       final response = await http.post(
         Uri.parse("$unpinMandiEndpoint/$userId"),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode(reqBody),
+        body: jsonEncode({...reqBody, "token": idToken}),
       );
 
       if (response.statusCode == 200) {

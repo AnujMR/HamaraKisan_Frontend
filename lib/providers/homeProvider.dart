@@ -43,7 +43,7 @@ Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid,
   ) async {
     try {
       final response = await http.post(
-        Uri.parse("$getHomePageGraphsEndpoint/$uid"),
+        Uri.parse(getHomePageGraphsEndpoint),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({...reqBody, "token": idToken}),
       );
@@ -52,19 +52,11 @@ Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid,
         final Map<String, dynamic> list = jsonDecode(response.body);
         // print(list); 
         priceTrend = {};
-        if (list["priceTrend"] != null) {
-          list["priceTrend"].forEach((district, value) {
-            priceTrend[district] = Map<String, dynamic>.from(value);
-          });
+        if (list["lineInfo"] != null) {
+          priceTrend = Map<String, Map<String, dynamic>>.from(list["lineInfo"]);
         }
-        if (list["topDistricts"] != null) {
-          topDistricts = Map<String, dynamic>.from(list["topDistricts"]);
-        }
-        if (list["pinnedMandiComparison"] != null) {
-          // print("The data we received : " + list["pinnedMandiComparison"]);
-          pinnedMandiComparison = Map<String, Map<String, dynamic>>.from(list["pinnedMandiComparison"]);
-          // print("The data converted : ");
-          // print(pinnedMandiComparison);
+        if (list["barInfo"] != null) {
+          topDistricts = Map<String, dynamic>.from(list["barInfo"]);
         }
 
         notifyListeners();
@@ -72,7 +64,62 @@ Future<void> getHomePageGraphs(Map<String, dynamic> reqBody, String uid,
         print('Error: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
-      print("Error fetching table data: $e");
+      print("Error fetching graph data: $e");
+    }
+  }
+
+Future<void> getMainGraph(Map<String, dynamic> reqBody, String uid,
+    String idToken,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$getMainGraphEndpoint/$uid"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...reqBody, "token": idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> res = jsonDecode(response.body);
+        // print(list); 
+        pinnedMandiComparison = {};
+        // print("Main Graph Response:");
+        // print(res);
+        pinnedMandiComparison = Map<String, Map<String, dynamic>>.from(res["graph"]);
+
+        notifyListeners();
+      } else {
+        print('Error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print("Error fetching main graph data: $e");
+    }
+  }
+
+Future<Map<String, dynamic>?> getPinnedMandiData(Map<String, dynamic> reqBody, String uid,
+    String idToken,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$pinMandiTableEndpoint/$uid"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...reqBody, "token": idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> res = jsonDecode(response.body);
+        // print(list); 
+        // pinnedMandiComparison = {};
+        // print("Main Graph Response:");
+        print(res);
+        // pinnedMandiComparison = Map<String, Map<String, dynamic>>.from(res["graph"]);
+        notifyListeners();
+        return res;
+      } else {
+        
+        print('Error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print("Error fetching main graph data: $e");
     }
   }
 }

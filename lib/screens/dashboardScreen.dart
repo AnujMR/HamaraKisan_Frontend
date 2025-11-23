@@ -13,6 +13,7 @@ import 'package:hamarakisan_front/providers/authProvider.dart';
 import 'package:hamarakisan_front/screens/loginPage.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -30,6 +31,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool isSubmitting = false;
   List<DashboardData> dashboardData = [];
   List<DashboardData> tableDataToDisplay = [];
+  bool isLoadingGraphs = false;
+  List<PieData> pieChartData = [];
 
   TextEditingController commodityController = TextEditingController();
   TextEditingController quantityController = TextEditingController();
@@ -234,6 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           listen: false,
         ).getDashboardData();
         showSnackbar("Record added successfully", Colors.green);
+        getDashboardGraphs();
       }else{
         showSnackbar("Error while adding the record. Please try again later.", Colors.red);
       }
@@ -373,10 +377,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  deleteFromTable(String id){
+    tableDataToDisplay.removeWhere((element) => element.id == id);
+    setState(() {});
+  }
+
+
+  getDashboardGraphs() async {
+    setState(() {
+      isLoadingGraphs = true;
+    });
+    Map<String, dynamic> reqBody = {};
+    final res = await Provider.of<AuthProvider>(context, listen: false)
+        .getDashboardGraphs(
+          reqBody,
+          Provider.of<AuthProvider>(context, listen: false).user.id,
+          Provider.of<AuthProvider>(context, listen: false).user.idToken,
+        );
+    setState(() {
+      // priceTrend = Provider.of<HomeProvider>(context, listen: false).priceTrend;
+      // topDistricts = Provider.of<HomeProvider>(
+      //   context,
+      //   listen: false,
+      // ).topDistricts;
+      isLoadingGraphs = false;
+    });
+  }
+
+  pieChart(){
+    return SizedBox(
+      width: dW * 0.25,
+      height: dH * 0.4,
+      child: SfCircularChart(
+        title: ChartTitle(text: 'Crop Distribution'),
+        legend: Legend(isVisible: true, overflowMode: LegendItemOverflowMode.wrap),
+      
+        // Enables interaction
+        enableMultiSelection: true,
+        selectionGesture: ActivationMode.singleTap,
+      
+        tooltipBehavior: TooltipBehavior(enable: true),
+      
+        series: <CircularSeries>[
+          PieSeries<PieData, String>(
+            dataSource: pieChartData,
+            xValueMapper: (PieData item, _) => item.category,
+            yValueMapper: (PieData item, _) => item.value,
+            dataLabelSettings: const DataLabelSettings(
+              isVisible: true,
+              labelPosition: ChartDataLabelPosition.outside,
+            ),
+            explode: true,
+            explodeIndex: 0,
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getDashboardGraphs();
     dashboardData = Provider.of<AuthProvider>(context, listen: false).dashboardData;
     tableDataToDisplay = dashboardData
         .sublist(
@@ -398,6 +461,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     UserModel user = Provider.of<AuthProvider>(context).user;
     dashboardData =
         Provider.of<AuthProvider>(context).dashboardData;
+    pieChartData = Provider.of<AuthProvider>(context).pieChartData;
     return Container(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -466,7 +530,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Container(
             width: 1,
-            height: dH * 0.6,
+            height: dH * 0.9,
             color: Colors.grey.shade300,
             margin: EdgeInsets.only(left: 20, right: 20),
           ),
@@ -489,7 +553,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    width: dW * 0.5,
+                    width: dW * 0.45,
                     // height: dH * 0.6,
                     child: Column(
                       children: [
@@ -500,12 +564,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             quantity: 0,
                             price: 0.0,
                             total: 0.0,
-                            date: DateTime.now(),
+                            date: DateTime.now()
                           ),
                           bgColor: primaryOrange,
                           isHeader: true,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          deleteRecord: deleteFromTable,
                         ),
                         Column(
                           children: [
@@ -531,6 +596,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         );
                                         return DashboardTableRow(
                                           data: data,
+                                          deleteRecord: deleteFromTable,
                                           bgColor: index % 2 == 0
                                               ? Colors.white
                                               : Colors.grey.shade100,
@@ -538,7 +604,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       }).toList(),
                                     ],
                                   ),
-
+          
                             SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -615,65 +681,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                   SizedBox(width: 30),
-                  GestureDetector(
-                    onTap: () {
-                      customPopUpBox(
-                        context,
-                        title: "Fill the details",
-                        child: addRecordForm(),
-                        onYes: ()async{
-                          await handleSubmit();
-                        setState(() {
-                            isSubmitting = false;
-                          });
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          customPopUpBox(
+                            context,
+                            title: "Fill the details",
+                            child: addRecordForm(),
+                            onYes: ()async{
+                              await handleSubmit();
+                            setState(() {
+                                isSubmitting = false;
+                              });
+                            },
+                            yesBtnText: "Add",
+                            noBtnText: "Cancel",
+                          );
                         },
-                        yesBtnText: "Add",
-                        noBtnText: "Cancel",
-                      );
-                    },
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      onEnter: (_) {
-                        setState(() {
-                          isAddNewRecordHovered = true;
-                        });
-                      },
-                      onExit: (_) {
-                        setState(() {
-                          isAddNewRecordHovered = false;
-                        });
-                      },
-                      child: Container(
-                        width: dW * 0.1,
-                        height: dW * 0.03,
-                        decoration: BoxDecoration(
-                          color: isAddNewRecordHovered
-                              ? const Color.fromARGB(255, 59, 137, 185)
-                              : const Color.fromARGB(255, 92, 181, 222),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Center(
-                            child: isSubmitting ? Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: CircularProgressIndicator(color: Colors.white),
-                            ) : Text(
-                              "Add a New Record",
-                              style: GoogleFonts.poppins(
-                                textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white,
+                        child: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          onEnter: (_) {
+                            setState(() {
+                              isAddNewRecordHovered = true;
+                            });
+                          },
+                          onExit: (_) {
+                            setState(() {
+                              isAddNewRecordHovered = false;
+                            });
+                          },
+                          child: Container(
+                            width: dW * 0.1,
+                            height: dW * 0.03,
+                            decoration: BoxDecoration(
+                              color: isAddNewRecordHovered
+                                  ? const Color.fromARGB(255, 59, 137, 185)
+                                  : const Color.fromARGB(255, 92, 181, 222),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Center(
+                                child: isSubmitting ? Padding(
+                                  padding: const EdgeInsets.all(3),
+                                  child: CircularProgressIndicator(color: Colors.white),
+                                ) : Text(
+                                  "Add a New Record",
+                                  style: GoogleFonts.poppins(
+                                    textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                      pieChart()
+                    ],
                   ),
                 ],
+              ),
+              SizedBox(
+                height: 50,
               ),
             ],
           ),
@@ -691,6 +766,7 @@ class DashboardTableRow extends StatefulWidget {
     this.fontSize = 12,
     this.fontWeight = FontWeight.w400,
     this.isHeader = false,
+    required this.deleteRecord,
   });
 
   final DashboardData data;
@@ -698,6 +774,7 @@ class DashboardTableRow extends StatefulWidget {
   final bool isHeader;
   final int fontSize;
   final FontWeight fontWeight;
+  final Function(String id) deleteRecord;
 
   @override
   State<DashboardTableRow> createState() => _DashboardTableRowState();
@@ -705,6 +782,35 @@ class DashboardTableRow extends StatefulWidget {
 
 class _DashboardTableRowState extends State<DashboardTableRow> {
   bool _isHovered = false;
+
+    deleteRecord() async {
+      widget.deleteRecord(widget.data.id);
+      final reqBody = {
+        "index": widget.data.id,
+      };
+      final res = await Provider.of<AuthProvider>(context, listen: false)
+          .deleteRecordInDashboard(
+            reqBody: reqBody,
+            idToken: Provider.of<AuthProvider>(
+              context,
+              listen: false,
+            ).user.idToken,
+            uid: Provider.of<AuthProvider>(context, listen: false).user.id,
+          );
+
+      if (res["success"]) {
+        await Provider.of<AuthProvider>(
+          context,
+          listen: false,
+        ).getDashboardData();
+        showSnackbar("Record deleted successfully", Colors.black);
+      } else {
+        showSnackbar(
+          "Error while deleting the record. Please try again later.",
+          Colors.red,
+        );
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -819,9 +925,35 @@ class _DashboardTableRowState extends State<DashboardTableRow> {
                 ),
               ),
             ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child:  widget.isHeader
+                      ? Text("Action",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    textStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: widget.isHeader ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ) : IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: deleteRecord, icon: Icon(Icons.delete, color: Colors.red, size: 16),
+                      ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+class PieData {
+  final String category;
+  final num value;
+
+  PieData(this.category, this.value);
 }

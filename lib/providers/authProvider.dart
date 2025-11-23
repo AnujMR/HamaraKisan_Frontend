@@ -8,6 +8,7 @@ import 'package:hamarakisan_front/apis.dart';
 import 'package:hamarakisan_front/models/dashboardData.dart';
 import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
 import 'package:hamarakisan_front/models/userModel.dart';
+import 'package:hamarakisan_front/screens/dashboardScreen.dart';
 import 'package:http/http.dart' as http;
 import 'package:localstorage/localstorage.dart';
 
@@ -16,6 +17,7 @@ class AuthProvider with ChangeNotifier {
   List<DashboardData> dashboardData = [];
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  List<PieData> pieChartData =[];
 
   updatePinnedMandis(List<PinnedMandi> newMandis){
     user.setPinnedMandis(newMandis);
@@ -259,11 +261,86 @@ class AuthProvider with ChangeNotifier {
         };
       }
     } catch (e) {
-      print("Error fetching dashboard data: $e");
+      print("Error adding a record: $e");
       return {
         "success": false,
         "message": 'Error: $e'
       };
+    }
+  }
+  Future<Map> deleteRecordInDashboard(
+    {required Map<String, dynamic> reqBody,
+    required String idToken,
+    required String uid}
+  ) async {
+    try {
+      DashboardData toBeDeleted = dashboardData.firstWhere((element) => element.id == reqBody["index"]);
+      dashboardData.remove(toBeDeleted);
+      notifyListeners();
+
+      final response = await http.post(
+        Uri.parse("$deleteRecordEnpoint/$uid"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...reqBody, "token": idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        getDashboardData();
+        notifyListeners();
+        return {"success": true};
+      } else {
+        dashboardData.add(toBeDeleted);
+        notifyListeners();
+        print('Error: ${response.statusCode} - ${response.body}');
+        return {
+          "success": false,
+          "message": 'Error: ${response.statusCode} - ${response.body}'
+        };
+      }
+    } catch (e) {
+      print("Error deleting a record: $e");
+      return {
+        "success": false,
+        "message": 'Error: $e'
+      };
+    }
+  }
+
+  Future<void> getDashboardGraphs(
+    Map<String, dynamic> reqBody,
+    String uid,
+    String idToken,
+  ) async {
+    try {
+      final response = await http.post(
+        Uri.parse("$getDashboardGraphsEndpoint/$uid"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({...reqBody, "token": idToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> res = jsonDecode(response.body);
+        // priceTrend = {};
+        print(res);
+        if (res["line"] != null) {
+          // priceTrend = Map<String, Map<String, dynamic>>.from(res["lineInfo"]);
+        }
+        if (res["bar"] != null) {
+          // topDistricts = Map<String, dynamic>.from(res["barInfo"]);
+
+          final pieJson = res["bar"] as Map<String, dynamic>;
+
+          pieChartData = pieJson.entries
+              .map((e) => PieData(e.key, e.value))
+              .toList();
+        }
+
+        notifyListeners();
+      } else {
+        print('Error: ${response.statusCode} - ${response.body}');
+      }
+    } catch (e) {
+      print("Error fetching dashboard graph data: $e");
     }
   }
 

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +11,8 @@ import 'package:hamarakisan_front/commonFunctions.dart';
 import 'package:hamarakisan_front/commonWidgets/barChart.dart';
 import 'package:hamarakisan_front/commonWidgets/customPopup.dart';
 import 'package:hamarakisan_front/commonWidgets/lineChart.dart';
+import 'package:hamarakisan_front/commonWidgets/pinnedMandiPopUp.dart';
+import 'package:hamarakisan_front/commonWidgets/pinnedMandiTable.dart';
 import 'package:hamarakisan_front/commonWidgets/pinnedMandisComparison.dart';
 import 'package:hamarakisan_front/models/pinnedMandiModel.dart';
 import 'package:hamarakisan_front/models/userModel.dart';
@@ -285,10 +288,10 @@ class _HomeScreenState extends State<HomeScreen> {
       "date": DateFormat('dd-MMM-yyyy').format(startDate),
     };
     print(DateFormat('dd-MMM-yyyy').format(startDate));
-    await Provider.of<HomeProvider>(
-      context,
-      listen: false,
-    ).getTableData(reqBody, Provider.of<AuthProvider>(context, listen: false).user.idToken);
+    await Provider.of<HomeProvider>(context, listen: false).getTableData(
+      reqBody,
+      Provider.of<AuthProvider>(context, listen: false).user.idToken,
+    );
     setState(() {
       isLoading = false;
       tableDataToDisplay = Provider.of<HomeProvider>(context, listen: false)
@@ -306,6 +309,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  getMainGraph() async {
+    // setState(() {
+    //   isLoadingGraphs = true;
+    // });
+    Map<String, dynamic> reqBody = {};
+    final res = await Provider.of<HomeProvider>(context, listen: false)
+        .getMainGraph(
+          reqBody,
+          Provider.of<AuthProvider>(context, listen: false).user.id,
+          Provider.of<AuthProvider>(context, listen: false).user.idToken,
+        );
+    setState(() {
+      // isLoadingGraphs = false;
+    });
+  }
+
   getHomePageGraphs(
     String state,
     // String? dist,
@@ -319,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Map<String, dynamic> reqBody = {
       "state": state,
       // "district": dist == null || dist == "All Districts" ? "--Select--" : dist,
-      "commodity_name": comm,
+      "comm": comm,
       "date": DateFormat('dd-MMM-yyyy').format(startDate),
       // "endDate": DateFormat('dd-MMM-yyyy').format(endDate),
     };
@@ -384,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return selectedState != null &&
         selectedCommodity != null &&
         selectedStartDate != null;
-        // && selectedEndDate != null;
+    // && selectedEndDate != null;
   }
 
   @override
@@ -393,6 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // getTableData();
     _tooltipBehavior = TooltipBehavior(enable: true);
+    getMainGraph();
   }
 
   @override
@@ -422,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
 
     final List<TopDistrictData> chartData = topDistricts.entries
-        .map((e) => TopDistrictData(e.key, e.value))
+        .map((e) => TopDistrictData(e.key, e.value.toInt()))
         .toList();
 
     priceTrend = Provider.of<HomeProvider>(context).priceTrend;
@@ -496,6 +516,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               ),
                                               child: PinnedMandiCard(
                                                 pinnedMandi: mandi,
+                                                refreshGraphs: getMainGraph,
                                               ),
                                             ),
                                           ),
@@ -505,8 +526,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                           ),
                           SizedBox(height: 20),
-                          if(Provider.of<HomeProvider>(context).pinnedMandiComparison.isNotEmpty)
-                          PinnedMandisComparison(),
+                          if (Provider.of<HomeProvider>(
+                            context,
+                          ).pinnedMandiComparison.isNotEmpty)
+                            PinnedMandisComparison(),
                           SizedBox(height: 20),
                           Divider(thickness: 0.5, color: Colors.grey),
                           SizedBox(height: 20),
@@ -521,8 +544,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.green.withOpacity(0.4),
-                                            borderRadius: BorderRadius.circular(10),
+                                            color: Colors.green.withOpacity(
+                                              0.4,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
                                             border: Border.all(
                                               color: Colors.grey.shade300,
                                               width: 1,
@@ -540,7 +567,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     selectedDistrict = null;
                                                   });
                                                 },
-                                                items: [...stateDistrictMap.keys],
+                                                items: [
+                                                  ...stateDistrictMap.keys,
+                                                ],
                                                 hintText: "State",
                                                 selectedItem: selectedState,
                                               ),
@@ -603,19 +632,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   );
                                                 },
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor: Color.fromARGB(
-                                                    255,
-                                                    0,
-                                                    167,
-                                                    33,
-                                                  ),
+                                                  backgroundColor:
+                                                      Color.fromARGB(
+                                                        255,
+                                                        0,
+                                                        167,
+                                                        33,
+                                                      ),
                                                   padding: EdgeInsets.symmetric(
                                                     horizontal: 20,
                                                     vertical: 15,
                                                   ),
                                                   shape: RoundedRectangleBorder(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
                                                   ),
                                                 ),
                                                 child: Icon(
@@ -664,14 +696,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         isLoading
                                             ? Padding(
-                                                padding: const EdgeInsets.all(40.0),
-                                                child: CircularProgressIndicator(),
+                                                padding: const EdgeInsets.all(
+                                                  40.0,
+                                                ),
+                                                child:
+                                                    CircularProgressIndicator(),
                                               )
                                             : Provider.of<HomeProvider>(
                                                 context,
                                               ).tableData.isEmpty
                                             ? Padding(
-                                                padding: const EdgeInsets.all(20.0),
+                                                padding: const EdgeInsets.all(
+                                                  20.0,
+                                                ),
                                                 child: Text(
                                                   areAllFiltersSelected()
                                                       ? "No data available"
@@ -679,8 +716,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   style: GoogleFonts.poppins(
                                                     textStyle: TextStyle(
                                                       fontSize: 16,
-                                                      fontWeight: FontWeight.w500,
-                                                      color: Colors.grey.shade400,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          Colors.grey.shade400,
                                                     ),
                                                   ),
                                                 ),
@@ -690,17 +729,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     .map(
                                                       (data) => TableRow(
                                                         marketId:
-                                                            data["market_id"] ?? "",
-                                                        state: data["state"] ?? "",
+                                                            data["market_id"] ??
+                                                            "",
+                                                        state:
+                                                            data["state"] ?? "",
                                                         // district:
                                                         //     data["district"] ?? "",
                                                         mandiName:
-                                                            data["market_name"] ?? "",
+                                                            data["market_name"] ??
+                                                            "",
                                                         commodity:
                                                             data["comm"] ?? "",
                                                         variety:
-                                                            data["variety"] ?? "",
-                                                        grade: data["grade"] ?? "",
+                                                            data["variety"] ??
+                                                            "",
+                                                        grade:
+                                                            data["grade"] ?? "",
                                                         minPrice:
                                                             data["min_price"]
                                                                 ?.toString() ??
@@ -713,11 +757,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             data["modal_price"]
                                                                 ?.toString() ??
                                                             "",
-                                                        date: data["date"] != null
-                                                            ? data["date"].toString()
+                                                        date:
+                                                            data["date"] != null
+                                                            ? data["date"]
+                                                                  .toString()
                                                             : "-",
                                                         bgColor: Colors.white,
-                                                        refreshGraphs: (){
+                                                        refreshGraphs: () {
                                                           getHomePageGraphs(
                                                             selectedState!,
                                                             // selectedDistrict,
@@ -725,7 +771,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             selectedStartDate!,
                                                             // selectedEndDate!,
                                                           );
-                                                        }
+                                                          getMainGraph();
+                                                        },
                                                       ),
                                                     )
                                                     .toList(),
@@ -796,7 +843,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   221,
                                                   221,
                                                 )
-                                              : const Color.fromARGB(255, 0, 167, 33),
+                                              : const Color.fromARGB(
+                                                  255,
+                                                  0,
+                                                  167,
+                                                  33,
+                                                ),
                                           foregroundColor: Colors.white,
                                         ),
                                       ),
@@ -850,22 +902,24 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                           yAxis: NumericAxis(
                                             title: AxisTitle(text: 'Avg Price'),
-                                            majorTickLines: const MajorTickLines(
-                                              size: 0,
-                                            ),
+                                            majorTickLines:
+                                                const MajorTickLines(size: 0),
                                           ),
                                         ),
                                         CustomLineChart(
-                                          title: "Price Trend Across Top 5 Districts",
+                                          title:
+                                              "Price Trend Across Top 5 Districts",
                                           dataList: seriesList,
                                           xAxis: DateTimeAxis(
                                             title: AxisTitle(text: "Date"),
                                             dateFormat: DateFormat('dd MMM'),
-                                            intervalType: DateTimeIntervalType.days,
+                                            intervalType:
+                                                DateTimeIntervalType.days,
                                           ),
                                           yAxis: NumericAxis(
                                             title: AxisTitle(text: 'Price'),
-                                            rangePadding: ChartRangePadding.round,
+                                            rangePadding:
+                                                ChartRangePadding.round,
                                             desiredIntervals: 10,
                                           ),
                                         ),
@@ -877,11 +931,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     if (Provider.of<HomeProvider>(context).selectedPage == 2)
-                      Container(
-                        child: PredictionScreen(),
-                      ),
+                      Container(child: PredictionScreen()),
                     if (Provider.of<HomeProvider>(context).selectedPage == 3)
-                    DashboardScreen()
+                      DashboardScreen(),
                   ],
                 ),
               ),
@@ -898,7 +950,7 @@ class PriceTrendData {
   final double price;
 
   PriceTrendData(String dateString, this.price)
-    : date = DateFormat('dd MMM yyyy').parse(dateString);
+    : date = DateFormat('yyyy-MM-dd').parse(dateString);
 }
 
 class TopDistrictData {
@@ -954,18 +1006,15 @@ class _TableRowState extends State<TableRow> {
 
   pinMandi() async {
     UserModel user = Provider.of<AuthProvider>(context, listen: false).user;
-    if(user.pinnedMandis.length >= 10){
-      showSnackbar(
-        "You can pin a maximum of 10 mandis",
-        Colors.red,
-      );
+    if (user.pinnedMandis.length >= 10) {
+      showSnackbar("You can pin a maximum of 10 mandis", Colors.red);
       pop(context);
       return;
     }
-    int index = Provider.of<AuthProvider>(
-      context,
-      listen: false,
-    ).user.pinnedMandis.indexWhere((mandi) => mandi.marketId == widget.marketId);
+    int index = Provider.of<AuthProvider>(context, listen: false)
+        .user
+        .pinnedMandis
+        .indexWhere((mandi) => mandi.marketId == widget.marketId);
     if (index != -1) {
       showSnackbar(
         "Mandi already pinned",
@@ -983,16 +1032,22 @@ class _TableRowState extends State<TableRow> {
       "token": user.idToken,
     };
 
-    final res = await Provider.of<PinnedMandiProvider>(context, listen: false)
-        .pinMandi(
-          reqBody: reqBody,
-          userId:user.id,
-        );
+    final res = await Provider.of<PinnedMandiProvider>(
+      context,
+      listen: false,
+    ).pinMandi(reqBody: reqBody, userId: user.id, idToken: user.idToken);
     if (res["success"]) {
+      await Provider.of<AuthProvider>(context, listen: false).updateUser(userData: {
+          "interestedCom": FieldValue.arrayUnion([widget.commodity]),
+        },
+        idToken: user.idToken
+      );
       showSnackbar("Mandi pinned successfully", Colors.green);
       widget.refreshGraphs!();
-      Provider.of<AuthProvider>(context, listen: false).updatePinnedMandis(res["pinnedMandis"]);
-
+      Provider.of<AuthProvider>(
+        context,
+        listen: false,
+      ).updatePinnedMandis(res["pinnedMandis"]);
     } else {
       showSnackbar("Error pinning mandi", Colors.red);
     }
@@ -1002,7 +1057,10 @@ class _TableRowState extends State<TableRow> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => {
-        customPopUpBox(context, title: 'Confirm Action', child: Row(
+        customPopUpBox(
+          context,
+          title: 'Confirm Action',
+          child: Row(
             children: [
               Text(
                 'Are you sure you want to pin ',
@@ -1035,7 +1093,9 @@ class _TableRowState extends State<TableRow> {
                 ),
               ),
             ],
-          ), onYes: pinMandi),
+          ),
+          onYes: pinMandi,
+        ),
       },
 
       child: MouseRegion(
@@ -1228,11 +1288,9 @@ class _TableRowState extends State<TableRow> {
 }
 
 class PinnedMandiCard extends StatefulWidget {
-  const PinnedMandiCard({
-    super.key,
-    required this.pinnedMandi,
-  });
+  const PinnedMandiCard({super.key, required this.pinnedMandi, required this.refreshGraphs});
   final PinnedMandi pinnedMandi;
+  final Function? refreshGraphs;
 
   @override
   State<PinnedMandiCard> createState() => _PinnedMandiCardState();
@@ -1240,7 +1298,8 @@ class PinnedMandiCard extends StatefulWidget {
 
 class _PinnedMandiCardState extends State<PinnedMandiCard> {
   bool isHovered = false;
-  
+  bool isLoading = false;
+
   unpinMandi() async {
     UserModel user = Provider.of<AuthProvider>(context, listen: false).user;
 
@@ -1249,7 +1308,7 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
     final res = await Provider.of<PinnedMandiProvider>(
       context,
       listen: false,
-    ).unpinMandi(reqBody: reqBody, userId: user.id);
+    ).unpinMandi(reqBody: reqBody, userId: user.id, idToken: user.idToken);
     if (res["success"]) {
       showSnackbar("Mandi unpinned successfully", Colors.green);
       // widget.refreshGraphs!();
@@ -1260,6 +1319,119 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
     } else {
       showSnackbar("Error unpinning mandi", Colors.red);
     }
+  }
+
+
+  getPinnedMandiData() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    showDialog(
+      context: context,
+      builder: (context) => Center(child: Container(
+        padding: EdgeInsets.all(20),
+        width: MediaQuery.of(context).size.width * 0.2,
+        height: MediaQuery.of(context).size.height * 0.2,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade300,
+              blurRadius: 10,
+              spreadRadius: 5,
+            ),
+          ],
+        ),
+        child: SizedBox(
+            width: 50,
+            height: 50,
+            child: Center(
+          child: CircularProgressIndicator())))),
+    );
+
+    Map<String, dynamic> reqBody = {
+      "marketid": widget.pinnedMandi.marketId,
+      "state": widget.pinnedMandi.state,
+      "date": DateFormat('dd-MM-yyyy').format(DateTime.now().subtract(Duration(days: 1))),
+    };
+    final res = await Provider.of<HomeProvider>(context, listen: false)
+        .getPinnedMandiData(
+          reqBody,
+          Provider.of<AuthProvider>(context, listen: false).user.id,
+          Provider.of<AuthProvider>(context, listen: false).user.idToken,
+        );
+
+    pop(context);
+
+    if (res != null) {
+      final List<dynamic> list = res["top5"];
+      final List<TopCommodityForPinnedMandi> top5Data = list
+    .map((item) => TopCommodityForPinnedMandi.fromJson(item))
+    .toList();
+      showPinnedMandiDetailsPopup(
+        context: context,
+        mandi: widget.pinnedMandi,
+        child: Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * 0.3,
+                        child: SingleChildScrollView(child: SimplePriceTable(data: res['table']))),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: MediaQuery.sizeOf(context).width * 0.3,
+                child: SfCartesianChart(
+                  title: ChartTitle(text: "Top 5 Commodities"),
+                
+                  primaryXAxis: CategoryAxis(
+                    labelRotation: -45, // tilt labels for readability
+                    majorGridLines: const MajorGridLines(width: 0),
+                  ),
+                
+                  primaryYAxis: NumericAxis(
+                    labelFormat: '{value}',
+                    majorGridLines: const MajorGridLines(width: 0.5),
+                  ),
+                
+                  tooltipBehavior: TooltipBehavior(enable: true),
+                
+                  series: <CartesianSeries>[
+                    BarSeries<TopCommodityForPinnedMandi, String>(
+                      dataSource: top5Data,
+                      xValueMapper: (item, _) => item.commodity,
+                      yValueMapper: (item, _) => item.avgPrice,
+                      dataLabelSettings: const DataLabelSettings(
+                        isVisible: true,
+                        labelAlignment: ChartDataLabelAlignment.top,
+                      ),
+                      width: 0.6,
+                      spacing: 0.2,
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    } else {
+      showSnackbar("Error fetching pinned mandi data", Colors.red);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -1359,7 +1531,9 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          getPinnedMandiData();
+                        },
                         child: Container(
                           padding: EdgeInsets.only(top: 10),
                           color: Colors.white,
@@ -1371,7 +1545,12 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
                                   textStyle: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
-                                    color: const Color.fromARGB(255, 72, 172, 255),
+                                    color: const Color.fromARGB(
+                                      255,
+                                      72,
+                                      172,
+                                      255,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1385,45 +1564,61 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
               ],
             ),
           ),
-        GestureDetector(
-          onTap: unpinMandi,
-          child: MouseRegion(
-            onEnter: (_){
-              setState(() {
-                isHovered = true;
-              });
-            },
-            onExit: (_){
-              setState(() {
-                isHovered = false;
-              });
-            },
-            cursor: SystemMouseCursors.click,
-            child: AnimatedContainer(
-              duration: Duration(milliseconds: 200),
-              padding: EdgeInsets.all(isHovered ? 4 : 2),
-              decoration: BoxDecoration(
-                color: isHovered ? Colors.red.shade400 : Colors.white,
-                borderRadius: BorderRadius.circular(100),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade300,
-                    offset: Offset(-1, 2),
-                    spreadRadius: 1,
-                    blurRadius: 3
-                  )
-                ]
-              ),
-              child: SvgPicture.asset(
-                  isHovered ? "assets/svg/unpin_icon.svg" : "assets/svg/pinned_icon.svg",
+          GestureDetector(
+            onTap: unpinMandi,
+            child: MouseRegion(
+              onEnter: (_) {
+                setState(() {
+                  isHovered = true;
+                });
+              },
+              onExit: (_) {
+                setState(() {
+                  isHovered = false;
+                });
+              },
+              cursor: SystemMouseCursors.click,
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 200),
+                padding: EdgeInsets.all(isHovered ? 4 : 2),
+                decoration: BoxDecoration(
+                  color: isHovered ? Colors.red.shade400 : Colors.white,
+                  borderRadius: BorderRadius.circular(100),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.shade300,
+                      offset: Offset(-1, 2),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                    ),
+                  ],
+                ),
+                child: SvgPicture.asset(
+                  isHovered
+                      ? "assets/svg/unpin_icon.svg"
+                      : "assets/svg/pinned_icon.svg",
                   width: 16,
                   color: isHovered ? Colors.white : Colors.grey.shade500,
                 ),
+              ),
             ),
           ),
-        ),
         ],
       ),
+    );
+  }
+}
+
+class TopCommodityForPinnedMandi {
+  final String commodity;
+  final num avgPrice;
+
+  TopCommodityForPinnedMandi({required this.commodity, required this.avgPrice});
+
+  factory TopCommodityForPinnedMandi.fromJson(Map<String, dynamic> json) {
+    return TopCommodityForPinnedMandi(
+      commodity: json["commodity"],
+      avgPrice: json["avg_price"],
     );
   }
 }
@@ -1534,10 +1729,7 @@ class _HomeTopBarState extends State<HomeTopBar> {
       ),
       child: Row(
         children: [
-          Image.asset(
-            "assets/images/nav_bar_logo.png",
-            width: 60,
-          ),
+          Image.asset("assets/images/nav_bar_logo.png", width: 60),
           SizedBox(width: 20),
           getTab(
             text: "Home",

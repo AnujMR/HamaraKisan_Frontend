@@ -16,6 +16,8 @@ class _PinnedMandisComparisonState extends State<PinnedMandisComparison> {
   
   String selectedComm = "";
   int gradientIndex = 0;
+  double dW = 0.0;
+  double dH = 0.0;
 
   @override
   void initState() {
@@ -45,10 +47,13 @@ class _PinnedMandisComparisonState extends State<PinnedMandisComparison> {
     ).pinnedMandiComparison.keys.toList();
     final List<PinnedMandiCommData> chartData = Provider.of<HomeProvider>(context)
             .pinnedMandiComparison[selectedComm]!.entries
-        .map((e) => PinnedMandiCommData(e.key, e.value))
+        .map((e) => PinnedMandiCommData(e.key, e.value.toInt()))
         .toList();
+      dW = MediaQuery.of(context).size.width;
+      dH = MediaQuery.of(context).size.height;
 
     return Container(
+      width: dW * 0.6,
       margin: EdgeInsets.symmetric(horizontal: 10),
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -65,61 +70,64 @@ class _PinnedMandisComparisonState extends State<PinnedMandisComparison> {
         ],
       ),
       child: Row(children: [
-        SfCartesianChart(
-            backgroundColor: Colors.white,
-            title: ChartTitle(
-              text: "Average Price Comparison for $selectedComm",
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            primaryXAxis: CategoryAxis(
-              title: AxisTitle(text: 'Districts', textStyle: TextStyle(fontWeight: FontWeight.bold)),
-              labelRotation: 45,
-              axisLabelFormatter: (AxisLabelRenderDetails args) {
-                String text = args.text;
-                // Trim labels longer than 10 characters
-                if (text.length > 10) {
-                  text = '${text.substring(0, 8)}…';
-                }
-                return ChartAxisLabel(text, args.textStyle);
-              },
-            ),
-            primaryYAxis: NumericAxis(
-              title: AxisTitle(text: 'Avg Price',
-                textStyle: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              majorTickLines: const MajorTickLines(size: 0),
-            ),
-            tooltipBehavior: TooltipBehavior(enable: true),
-            series: <CartesianSeries<PinnedMandiCommData, String>>[
-              ColumnSeries<PinnedMandiCommData, String>(
-                animationDuration: 500,
-                dataSource: chartData,
-                xValueMapper: (PinnedMandiCommData data, _) => data.district,
-                yValueMapper: (PinnedMandiCommData data, _) => data.value,
-                name: 'Value',
-                borderRadius: const BorderRadius.all(Radius.circular(8)),
-                gradient: LinearGradient(
-                  colors: gradients[gradientIndex],
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
+        Container(
+          width: dW * 0.3,
+          child: SfCartesianChart(
+              backgroundColor: Colors.white,
+              title: ChartTitle(
+                text: "Average Price Comparison for $selectedComm",
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-                dataLabelSettings: const DataLabelSettings(
-                  isVisible: true,
-                  textStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
+              ),
+              primaryXAxis: CategoryAxis(
+                title: AxisTitle(text: 'Districts', textStyle: TextStyle(fontWeight: FontWeight.bold)),
+                labelRotation: 45,
+                axisLabelFormatter: (AxisLabelRenderDetails args) {
+                  String text = args.text;
+                  // Trim labels longer than 10 characters
+                  if (text.length > 10) {
+                    text = '${text.substring(0, 8)}…';
+                  }
+                  return ChartAxisLabel(text, args.textStyle);
+                },
+              ),
+              primaryYAxis: NumericAxis(
+                title: AxisTitle(text: 'Avg Price',
+                  textStyle: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                majorTickLines: const MajorTickLines(size: 0),
+              ),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              series: <CartesianSeries<PinnedMandiCommData, String>>[
+                ColumnSeries<PinnedMandiCommData, String>(
+                  animationDuration: 500,
+                  dataSource: chartData,
+                  xValueMapper: (PinnedMandiCommData data, _) => data.district,
+                  yValueMapper: (PinnedMandiCommData data, _) => data.value,
+                  name: 'Value',
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  gradient: LinearGradient(
+                    colors: gradients[gradientIndex],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                  dataLabelSettings: const DataLabelSettings(
+                    isVisible: true,
+                    textStyle: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+        ),
           Container(
             margin: EdgeInsets.only(left:  MediaQuery.of(context).size.width * 0.05),
             padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-            width: MediaQuery.of(context).size.width * 0.3,
+            width: MediaQuery.of(context).size.width * 0.2,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -128,6 +136,7 @@ class _PinnedMandisComparisonState extends State<PinnedMandisComparison> {
             ),
             child: Wrap(
               spacing: 8.0,
+              runSpacing: 4.0,
               children: commodities.map((comm) {
                 final bool isSelected = comm == selectedComm;
                 return ChoiceChip(
