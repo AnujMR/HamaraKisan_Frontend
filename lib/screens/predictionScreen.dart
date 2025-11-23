@@ -84,6 +84,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
       }else{
         setState(() {
           remedy = "Your plant looks healthy! No treatment needed.";
+          if(PredictedDisease == "Background_without_leaves"){
+            remedy = "The uploaded image seems to be of a background without leaves. Please upload a clear image of the plant leaf for accurate disease prediction.";
+          }
         });
       }
     } else {

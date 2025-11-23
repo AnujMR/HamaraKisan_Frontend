@@ -564,13 +564,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             quantity: 0,
                             price: 0.0,
                             total: 0.0,
-                            date: DateTime.now()
+                            date: DateTime.now(),
+                      
                           ),
                           bgColor: primaryOrange,
                           isHeader: true,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           deleteRecord: deleteFromTable,
+                          getDashboardGraphs: getDashboardGraphs,
                         ),
                         Column(
                           children: [
@@ -600,6 +602,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           bgColor: index % 2 == 0
                                               ? Colors.white
                                               : Colors.grey.shade100,
+                                              getDashboardGraphs:
+                                              getDashboardGraphs,
                                         );
                                       }).toList(),
                                     ],
@@ -767,6 +771,7 @@ class DashboardTableRow extends StatefulWidget {
     this.fontWeight = FontWeight.w400,
     this.isHeader = false,
     required this.deleteRecord,
+    required this.getDashboardGraphs,
   });
 
   final DashboardData data;
@@ -775,6 +780,7 @@ class DashboardTableRow extends StatefulWidget {
   final int fontSize;
   final FontWeight fontWeight;
   final Function(String id) deleteRecord;
+  final Function getDashboardGraphs;
 
   @override
   State<DashboardTableRow> createState() => _DashboardTableRowState();
@@ -803,6 +809,7 @@ class _DashboardTableRowState extends State<DashboardTableRow> {
           context,
           listen: false,
         ).getDashboardData();
+        widget.getDashboardGraphs();
         showSnackbar("Record deleted successfully", Colors.black);
       } else {
         showSnackbar(
@@ -858,7 +865,7 @@ class _DashboardTableRowState extends State<DashboardTableRow> {
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Text(
                   widget.isHeader
-                      ? "Quantity"
+                      ? "Quantity (Q)"
                       : widget.data.quantity.toString(),
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
@@ -877,7 +884,7 @@ class _DashboardTableRowState extends State<DashboardTableRow> {
                 child: Text(
                   widget.isHeader
                       ? "Price"
-                      : widget.data.price.toStringAsFixed(2),
+                      : "₹ ${widget.data.price.toStringAsFixed(2)}",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(
@@ -895,7 +902,7 @@ class _DashboardTableRowState extends State<DashboardTableRow> {
                 child: Text(
                   widget.isHeader
                       ? "Total"
-                      : widget.data.total.toStringAsFixed(2),
+                      : "₹ ${widget.data.total.toStringAsFixed(2)}",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.poppins(
                     textStyle: TextStyle(

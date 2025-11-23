@@ -894,7 +894,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : Column(
                                       children: [
                                         CustomBarChart(
-                                          title: "Top 5 Districts",
+                                          title: "Top 5 Mandis",
                                           chartData: chartData,
                                           xAxis: CategoryAxis(
                                             title: AxisTitle(text: 'Districts'),
@@ -908,7 +908,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         CustomLineChart(
                                           title:
-                                              "Price Trend Across Top 5 Districts",
+                                              "Price Trend Across Top 5 Mandis",
                                           dataList: seriesList,
                                           xAxis: DateTimeAxis(
                                             title: AxisTitle(text: "Date"),
@@ -1219,7 +1219,7 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    "₹ ${widget.minPrice}",
+                    widget.isHeader ? widget.minPrice : "₹ ${widget.minPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
@@ -1235,7 +1235,7 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    "₹ ${widget.maxPrice}",
+                    widget.isHeader ? widget.maxPrice : "₹ ${widget.maxPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(
@@ -1251,7 +1251,9 @@ class _TableRowState extends State<TableRow> {
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    "₹ ${widget.modalPrice}",
+                    widget.isHeader
+                        ? widget.modalPrice
+                        : "₹ ${widget.modalPrice}",
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       textStyle: TextStyle(

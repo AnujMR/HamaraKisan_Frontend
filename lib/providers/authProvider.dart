@@ -320,13 +320,11 @@ class AuthProvider with ChangeNotifier {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> res = jsonDecode(response.body);
-        // priceTrend = {};
-        print(res);
+        // print(res);
         if (res["line"] != null) {
           // priceTrend = Map<String, Map<String, dynamic>>.from(res["lineInfo"]);
         }
         if (res["bar"] != null) {
-          // topDistricts = Map<String, dynamic>.from(res["barInfo"]);
 
           final pieJson = res["bar"] as Map<String, dynamic>;
 
