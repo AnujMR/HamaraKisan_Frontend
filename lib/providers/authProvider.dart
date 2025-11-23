@@ -250,7 +250,7 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         dashboardData.add(DashboardData.fromJson({...reqBody, "index": dashboardData.length.toString(), "total": reqBody["price"] * reqBody["quantity"]}));
         notifyListeners();
-        getDashboardData();
+        // getDashboardData();
         notifyListeners();
         return {"success": true};
       } else {

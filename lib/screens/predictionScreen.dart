@@ -60,7 +60,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
       isPredicting = false;
     });
     if (response["success"]) {
-      print(response);
+      // print(response);
       setState(() {
         PredictedDisease = response["data"]["disease"];
         isDiseased = response["data"]["isDiseased"];
@@ -316,15 +316,21 @@ class _PredictionScreenState extends State<PredictionScreen> {
                 height: dh * 0.7,
                 child: isGettingRemedy
                     ? Center(
-                        child: Text(
-                          "Finding Remedy...",
-                          style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset("assets/images/loader.gif", width: 90),
+                            Text(
+                              "Finding Remedy...",
+                              style: GoogleFonts.poppins(
+                                textStyle: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       )
                     : remedy.isNotEmpty

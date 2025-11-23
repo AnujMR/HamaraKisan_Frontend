@@ -287,25 +287,38 @@ class _HomeScreenState extends State<HomeScreen> {
       "comm": comm,
       "date": DateFormat('dd-MMM-yyyy').format(startDate),
     };
-    print(DateFormat('dd-MMM-yyyy').format(startDate));
+    // print(DateFormat('dd-MMM-yyyy').format(startDate));
     await Provider.of<HomeProvider>(context, listen: false).getTableData(
       reqBody,
       Provider.of<AuthProvider>(context, listen: false).user.idToken,
     );
     setState(() {
       isLoading = false;
-      tableDataToDisplay = Provider.of<HomeProvider>(context, listen: false)
-          .tableData
-          .sublist(
-            currentIndex,
-            min(
-              currentIndex + rowsPerPage,
-              Provider.of<HomeProvider>(
-                context,
-                listen: false,
-              ).tableData.length,
-            ),
-          );
+
+      final list = Provider.of<HomeProvider>(context, listen: false)
+          .tableData;
+
+      if (list.isEmpty) {
+        tableDataToDisplay = [];
+      } else {
+        final safeStart = currentIndex.clamp(0, list.length - 1);
+        final safeEnd = (safeStart + rowsPerPage).clamp(0, list.length);
+
+        tableDataToDisplay = list.sublist(safeStart, safeEnd);
+      }
+
+      // tableDataToDisplay = Provider.of<HomeProvider>(context, listen: false)
+      //     .tableData
+      //     .sublist(
+      //       currentIndex,
+      //       min(
+      //         currentIndex + rowsPerPage,
+      //         Provider.of<HomeProvider>(
+      //           context,
+      //           listen: false,
+      //         ).tableData.length,
+      //       ),
+      //     );
     });
   }
 
@@ -764,13 +777,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             : "-",
                                                         bgColor: Colors.white,
                                                         refreshGraphs: () {
-                                                          getHomePageGraphs(
-                                                            selectedState!,
-                                                            // selectedDistrict,
-                                                            selectedCommodity!,
-                                                            selectedStartDate!,
-                                                            // selectedEndDate!,
-                                                          );
+                                                          // getHomePageGraphs(
+                                                          //   selectedState!,
+                                                          //   // selectedDistrict,
+                                                          //   selectedCommodity!,
+                                                          //   selectedStartDate!,
+                                                          //   // selectedEndDate!,
+                                                          // );
                                                           getMainGraph();
                                                         },
                                                       ),
@@ -859,20 +872,28 @@ class _HomeScreenState extends State<HomeScreen> {
                               isLoadingGraphs
                                   ? Expanded(
                                       child: Center(
-                                        child: Text(
-                                          "Generating analytics...",
-                                          style: GoogleFonts.poppins(
-                                            textStyle: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color.fromARGB(
-                                                255,
-                                                100,
-                                                100,
-                                                100,
+                                        child: Column(
+                                          children: [
+                                            Image.asset(
+                                              "assets/images/loader.gif",
+                                              width: 90,
+                                            ),
+                                            Text(
+                                              "Generating analytics...",
+                                              style: GoogleFonts.poppins(
+                                                textStyle: TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: const Color.fromARGB(
+                                                    255,
+                                                    100,
+                                                    100,
+                                                    100,
+                                                  ),
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ),
                                     )
@@ -1020,7 +1041,7 @@ class _TableRowState extends State<TableRow> {
         "Mandi already pinned",
         const Color.fromARGB(255, 255, 185, 8),
       );
-      pop(context);
+      // pop(context);
       return;
     }
 
@@ -1313,7 +1334,7 @@ class _PinnedMandiCardState extends State<PinnedMandiCard> {
     ).unpinMandi(reqBody: reqBody, userId: user.id, idToken: user.idToken);
     if (res["success"]) {
       showSnackbar("Mandi unpinned successfully", Colors.green);
-      // widget.refreshGraphs!();
+      widget.refreshGraphs!();
       Provider.of<AuthProvider>(
         context,
         listen: false,

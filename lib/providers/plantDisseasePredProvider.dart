@@ -47,7 +47,7 @@ class PlantDiseasePredProvider with ChangeNotifier{
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
-        print(result);
+        // print(result);
         notifyListeners();
         return {"success": true, "data": result["data"]};
       } else {

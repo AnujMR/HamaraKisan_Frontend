@@ -236,8 +236,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context,
           listen: false,
         ).getDashboardData();
+        dashboardData =
+            Provider.of<AuthProvider>(context, listen: false).dashboardData;
+            tableDataToDisplay.insert(0, dashboardData.first);
         showSnackbar("Record added successfully", Colors.green);
         getDashboardGraphs();
+        setState(() {
+          
+        });
       }else{
         showSnackbar("Error while adding the record. Please try again later.", Colors.red);
       }
