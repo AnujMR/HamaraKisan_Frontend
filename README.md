@@ -1,16 +1,89 @@
-# hamarakisan_front
+# Hamara Kisan
 
-A new Flutter project.
+An analytical web platform designed to empower Indian farmers through real-time market insights, AI-assisted crop health support, and personal sales management.
 
-## Getting Started
+## Problem Statement
 
-This project is a starting point for a Flutter application.
+India has nearly 150 million farmers who contribute significantly to the country's economy. However, farmers often face several challenges:
 
-A few resources to get you started if this is your first Flutter project:
+- Limited access to real-time mandi prices
+- Difficulty comparing prices across different markets
+- Lack of tools for tracking price trends
+- No convenient system for recording and analyzing personal crop sales
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Hamara Kisan aims to address these challenges by bringing market analytics, crop disease detection, and sales management into a single platform.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## Our Solution
+
+Hamara Kisan is a smart analytical web application that helps farmers make better decisions by providing:
+
+- Real-time mandi price analysis
+- AI-based plant disease prediction
+- Personal sales tracking and visualization
+- Market comparison tools
+
+The platform combines data analytics, machine learning, and an intuitive user interface to create a simple and accessible solution for farmers.
+
+---
+
+## Features
+
+### Analytical Dashboard
+
+- Search mandis across India
+- View minimum, maximum, and modal prices
+- Compare commodity prices across different markets
+- Analyze market trends using interactive visualizations
+
+### Mandi Pinning
+
+- Save frequently used mandis
+- Quickly access commodity prices from preferred markets
+
+### Personal Sales Log
+
+- Record daily crop sales
+- Track income over time
+- View automatically generated charts and analytics
+
+### Plant Disease Prediction
+
+- Upload a leaf image
+- Detect possible plant diseases using a machine learning model
+- Receive AI-generated treatment recommendations
+
+---
+
+## Technology Stack
+
+| Component | Technology |
+| --- | --- |
+| Frontend | Flutter |
+| Backend | Flask |
+| Database | Firebase |
+| Authentication | Firebase Authentication |
+| Web Scraping | BeautifulSoup |
+| AI Assistance | Gemini AI |
+| Data Visualization | Syncfusion |
+| Machine Learning | Plant Disease Prediction Model |
+
+---
+
+## Future Scope
+
+- Regional language support
+- Commodity price forecasting using machine learning
+- Collaboration with pesticide vendors
+- Dedicated Android and iOS applications
+
+---
+
+## Contributors
+
+| Name | Role | Responsibilities |
+| --- | --- | --- |
+| Anuj Ramane | Frontend Developer | Flutter, Firebase Authentication, Visualizations |
+| Gopala Patel | Backend Developer | Flask, Web Scraping, API Development |
+| Ranjeet Kumar | ML Developer | Plant Disease Prediction |
